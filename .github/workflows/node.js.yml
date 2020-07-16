@@ -29,18 +29,23 @@ jobs:
 
   deploy:
     - runs-on: ubuntu-latest
-
-    - name: Build docs
-      uses: andstor/jsdoc-action@v1
-      with:
-        source_dir: .
-        output_dir: ./docs
-        config_file: .jsdoc.js
-        template: minami
-        front_page: README.md
-        
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        publish_dir: ./docs
+    - steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+          with:
+            persist-credentials: false
+            
+        - name: Build docs
+        uses: andstor/jsdoc-action@v1
+        with:
+            source_dir: .
+            output_dir: ./docs
+            config_file: .jsdoc.js
+            template: minami
+            front_page: README.md
+            
+        - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+            deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+            publish_dir: ./docs

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>mongo.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-Discord-Channel.html">Channel</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-Discord-Guild.html">Guild</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-Discord-Member.html">Member</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-Discord-Message.html">Message</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="module-MongoDB-Database.html">Database</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#collection">collection</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#find">find</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#insert">insert</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#insertOne">insertOne</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#project">project</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#then">then</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#toArray">toArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-MongoDB-Database.html#updateOne">updateOne</a></span></li><li class="nav-heading">Modules</li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-Discord.html">Discord</a></span></li><li class="nav-heading"><span class="nav-item-type type-module">M</span><span class="nav-item-name"><a href="module-MongoDB.html">MongoDB</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="module-Discord-Guild_members.html">members</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-Discord-Guild_members.html#.add">add</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-Discord-Guild_members.html#.fetch">fetch</a></span></li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="module-Discord-Member_roles.html">roles</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-Discord-Member_roles.html#.add">add</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="module-Discord-Member_roles.html#.remove">remove</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">mongo.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module MongoDB */
+
+/**
+ * @callback basicThenCallback - What happens once the then is called
+ * @param {string} err - Handles error
+ * @param {string} res - Database result 
+ */
+
+class Database {
+    /**
+     * Creates a mock MongoDB Server
+     * @constructor
+     */
+    constructor() {
+        this.data = []
+    }
+
+    /**
+     * Set the collection for a query.
+     * @param {string} collection - Collection name 
+     * @return {this}
+     */
+    collection(collection) {
+        this.collectionName = collection;
+        return this;
+    }
+
+    /**
+     * Query a database to find items
+     * @param {Object} query - Database query
+     * @param {Object=} settings - Things like projection
+     */
+    find(query, settings = {}) {
+        if(JSON.stringify(query) != "{}") {
+            this.returnData = JSON.parse(JSON.stringify(this.data.filter(obj => {
+                let ret = true;
+                for(let key in query) {
+                    if(obj[key] != query[key]) {
+                        ret = false;
+                        break;
+                    }
+                }
+                return ret;
+            })))
+        } else {
+            if(this.data.length > 0) {
+                this.returnData = JSON.parse(JSON.stringify(this.data));
+            } else {
+                this.returnData = []
+            }
+        }
+
+        if(settings != undefined &amp;&amp; settings.projection != undefined) {
+            this.project(settings.projection);
+        }
+
+        return this;
+    }
+
+    /**
+     * Used for some testing purposes
+     * @param {basicThenCallback} cb
+     * @returns {void}
+     */
+    then(cb) {
+        cb(this.returnData);
+    }
+
+    /**
+     * Removes certain items from a response
+     * @param {Object} projection - Projection query object
+     */
+    project(projection) {
+        for(let i in this.returnData) {
+            for(let project in projection) {
+                if(projection[project] == false) {                    
+                    Object.keys(this.returnData[i]).filter(key => key == project).forEach(key => delete this.returnData[i][key])
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Converts found query items into an array
+     * @param {basicThenCallback} cb
+     * @returns {this} 
+     */
+    toArray(cb) {
+        const data = this.returnData;
+        this.returnData = [];
+        cb(undefined, data);
+
+        return this;
+    }
+
+    /**
+     * Insert an item into the database
+     * @async
+     * @param {Object} item - New item to be inserted
+     * @returns {Promise} - Promise object represents the inserted objects ID
+     */
+    async insert(item) {
+        return new Promise((resolve, reject) => {
+            item._id = item._id || Math.floor(Math.random() * 100000) + 1000;
+            this.data.push(item);
+
+            resolve({_id: item._id});
+        })
+    }
+
+    /**
+     * Same as insert()
+     * @async
+     * @param {Object} item
+     * @returns {Promise} - Promise object represents the inserted objects ID 
+     */
+    async insertOne(item) {
+        return await this.insert(item);
+    }
+
+    /**
+     * 
+     * @param {Object} oldItem - Old item to be replaced 
+     * @param {Object} newItem - New item to replace old item
+     * @param {Object=} settings - TBD
+     * @param {basicThenCallback=} cb 
+     */
+    async updateOne(oldItem, newItem, settings, cb = () => {}) {
+        return new Promise((resolve, reject) => {
+            if(this.data.findIndex(u => u._id == oldItem._id) == -1) {
+                this.insert(newItem["$set"]);
+            } else {
+                this.data[this.data.findIndex(u => u._id == oldItem._id)] = newItem["$set"];            
+            }
+            
+            cb(undefined, newItem["$set"]);
+            resolve(this);
+        })
+    }
+
+}
+
+module.exports = Database;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a> on Thu Jul 16 2020 21:17:18 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

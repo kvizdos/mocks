@@ -27,11 +27,14 @@ jobs:
     - run: npm install
     - run: npm test
 
+  deploy:
+    - runs-on: ubuntu-latest
+
     - name: Build docs
       uses: andstor/jsdoc-action@v1
       with:
         source_dir: .
-        output_dir: ./out
+        output_dir: ./docs
         config_file: .jsdoc.js
         template: minami
         front_page: README.md
@@ -40,4 +43,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        publish_dir: ./out
+        publish_dir: ./docs

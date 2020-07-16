@@ -25,7 +25,7 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-    // handle messages.
+    MessageHandler.ping(msg);
 });
 
 client.login(process.env.DISCORDTOKEN);
@@ -33,6 +33,30 @@ client.login(process.env.DISCORDTOKEN);
 messages.js:
 ```
 module.exports.ping = (msg) => {
-    const author = msg.author
+    const author = msg.author.username;
+
+    msg.reply(`wow, your name, ${author}, is great!`);
 }
 ```
+
+Now, this will work with the client running, wahoo! But, let's get a unit test in place.
+tests/messages.spec.js:
+```
+const { Discord: DiscordMock } = require("@kvizdos/mocks")
+const MessageHandler = require("../messages");
+
+describe("Message unit tests", () => {
+    it("should reply with the correct message", () => {
+        const Channel = new DiscordMock.Channel();
+        const Guild = new DiscordMock.Guild();
+        const Member = new DiscordMock.Member(Guild, 12345);
+        const Message = new DiscordMock.Message(Member, "Test message", [], Channel, Guild);
+
+        MessageHandler.ping(Message);
+        
+        expect(Message.replyStatus).toBe("<@1235>, wow, your name, 12345, is great!") // For now, the username is an alias of the ID
+    })
+})
+```
+
+And there you have it! Unit tested Discord bots.

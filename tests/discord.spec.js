@@ -146,5 +146,13 @@ describe("Mock Discord Unit Tests", () => {
             expect(Message.attachments.size).toBe(1);
             expect(Message.attachments.attachments[0].image).toBe(true);
         })
+
+        it("should be able to reply to a message", () => {
+            const Message = new DiscordMock.Message({id: 1234}, "Test message", [{image: true}], "Test channel", "Test guild");
+
+            Message.reply("Hello!");
+
+            expect(Message.replyStatus).toBe("<@1234>, Hello!")
+        })
     })
 })

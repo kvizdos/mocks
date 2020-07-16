@@ -18,6 +18,16 @@ class Message {
             size: attachments.length,
             attachments: attachments 
         };
+        this.replyStatus = undefined;
+    }
+
+    /**
+     * Reply to a users message (saves output to .replyStatus)
+     * @param {string} message - Message content
+     * @returns {void}
+     */
+    reply(message) {
+        this.replyStatus = `<@${this.author.id}>, ${message}`;
     }
 
     /**

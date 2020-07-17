@@ -114,17 +114,18 @@ class Guild {
         this.members = {
             /**
              * Contains a list of every member in the guild. It is not recommended to directly access.
-             * @type {Member[]}
+             * @type {Map}
              */
-            members: [],
+            members: new Map(),
             /**
              * Find a user object inside of this Guild 
              * @param {number} id - Member ID that you are trying to find
              */
             fetch(id) {
-                let ret = this.members.filter(member => {
-                    return member.id == id
-                })[0];
+                let ret = this.members.get(id);
+                // let ret = this.members.filter(member => {
+                //     return member.id == id
+                // })[0];
 
                 ret = {...ret, user: ret}
 
@@ -135,7 +136,7 @@ class Guild {
              * @param {Member} Member - Member to be added 
              */
             add(Member) {
-                this.members.push(Member);
+                this.members.set(Member.id, Member);
             }
         }
     }

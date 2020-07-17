@@ -37,8 +37,7 @@ describe("Mock Discord Unit Tests", () => {
                 id: "Test"
             });
 
-            expect(Guild.members.members).toHaveLength(1);
-            expect(Guild.members.members[0].id).toBe("Test");
+            expect(Guild.members.members.get("Test").id).toBe("Test");
         })
 
         it("should find a mock member", () => {

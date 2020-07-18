@@ -102,7 +102,7 @@ class Guild {
                  * @param {string} name - Specifies role name 
                  */
                 add(name) {
-                    this.roles.push({name: name})
+                    this.roles.push({name: name, id: name})
                 }
             }
         },
@@ -139,6 +139,12 @@ class Guild {
                 this.members.set(Member.id, Member);
             }
         }
+
+        this.members.cache = this.members.members;
+    }
+
+    member(member) {
+        return this.members.members.get(member.id || member);
     }
 }
 
@@ -174,7 +180,7 @@ class Member {
              * @param {number} id - Role ID
              */
             remove(id) {
-                const index = this.roles.indexOf(id);
+                const index = this.roles.indexOf(id.id);
                 this.roles.splice(index, 1);
             }
         }

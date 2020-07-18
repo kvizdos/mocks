@@ -1,157 +1,215 @@
-const DiscordMock = require("../discord");
+/** @module Discord */
+class Message {
+    /**
+     * This creates a mock message
+     * @constructor
+     * @param {Member} author - Member that this message belongs to 
+     * @param {string} content - Message contents (text) 
+     * @param {Object[]} attachments - Any message attachments (images) 
+     * @param {Channel} channel - Channel that this message belongs to 
+     * @param {Guild} guild - Guild that this message is in
+     */
+    constructor(author, content, attachments, channel, guild) {
+        this.authorInfo = author;
+        this.activeChannel = channel;
+        this.message = content;
+        this.msgGuild = guild;
+        this.attachmentsInfo = {
+            size: attachments.length,
+            attachments: attachments 
+        };
+        this.replyStatus = undefined;
+    }
 
-describe("Mock Discord Unit Tests", () => {
-    describe("Guild tests", () => {
-        it("should add a role", () => {
-            const Guild = new DiscordMock.Guild()
-            Guild.roles.cache.add("Test");
+    /**
+     * Reply to a users message (saves output to .replyStatus)
+     * @param {string} message - Message content
+     * @returns {void}
+     */
+    reply(message) {
+        this.replyStatus = `<@${this.author.id}>, ${message}`;
+    }
 
-            expect(Guild.roles.cache.roles).toHaveLength(1);
-            expect(Guild.roles.cache.roles[0].name).toBe("Test");
-        })
+    /**
+     * Get the text contents of this message
+     * @type {string}
+     */
+    get content() {
+        return this.message;
+    }
 
-        it("should fetch a role", () => {
-            const Guild = new DiscordMock.Guild();
-            Guild.roles.cache.add("Test");
+    /**
+     * Get the attachments of this message
+     * @type {Object[]}
+     */
+    get attachments() {
+        return this.attachmentsInfo;
+    }
 
-            const found = Guild.roles.cache.find((role) => {
-                return role.name == "Test";
-            })
+    /**
+     * Get the author of this message
+     * @type {Member}
+     */
+    get author() {
+        return this.authorInfo;
+    }
 
-            expect(found.name).toBe("Test")
-        })
+    /**
+     * Get the guild of this message
+     * @type {Guild}
+     */
+    get guild() {
+        return this.msgGuild;
+    }
 
-        it("shouldn't fetch an invalid role", () => {
-            const Guild = new DiscordMock.Guild();
+    /**
+     * Get the channel of this message
+     * @type {Channel}
+     */
+    get channel() {
+        return this.activeChannel;
+    }
+}
 
-            const found = Guild.roles.cache.find((role) => {
-                return role.name == "Test";
-            })
+class Guild {
+    /**
+     * Creates a mock guild
+     * @constructor
+     */
+    constructor() {
+        /**
+         * Contains all role information for this guild
+         */
+        this.roles = {
+            /**
+             * Roles cache
+             */
+            cache: {
+                /**
+                 * List of roles
+                 * @type {array}
+                 */
+                roles: [],
+                /**
+                 * Finds a certain role
+                 * @param {function} findStatement 
+                 */
+                find(findStatement) {
+                    return this.roles.filter(role => findStatement(role))[0];
+                },
+                /**
+                 * Creates a role in the mock guild
+                 * @param {string} name - Specifies role name 
+                 */
+                add(name) {
+                    this.roles.push({name: name, id: name})
+                }
+            }
+        },
+        /**
+         * Contains all of the members in this guild.
+         * @type {Object}
+         * @namespace
+         */
+        this.members = {
+            /**
+             * Contains a list of every member in the guild. It is not recommended to directly access.
+             * @type {Map}
+             */
+            members: new Map(),
+            /**
+             * Find a user object inside of this Guild 
+             * @param {number} id - Member ID that you are trying to find
+             */
+            fetch(id) {
+                let ret = this.members.get(id);
+                // let ret = this.members.filter(member => {
+                //     return member.id == id
+                // })[0];
 
-            expect(found).toBe(undefined)
-        })
+                ret = {...ret, user: ret}
 
-        it("should add a mock member", () => {
-            const Guild = new DiscordMock.Guild();
-            Guild.members.add({
-                id: "Test"
-            });
+                return ret;
+            },
+            /**
+             * Adds a Member to this Guild
+             * @param {Member} Member - Member to be added 
+             */
+            add(Member) {
+                this.members.set(Member.id, Member);
+            }
+        }
 
-            expect(Guild.members.members.get("Test").id).toBe("Test");
-        })
+        this.members.cache = this.members.members;
+    }
 
-        it("should find a mock member", () => {
-            const Guild = new DiscordMock.Guild();
-            Guild.members.add({
-                id: "Test"
-            });
+    member(member) {
+        return this.members.members.get(member.id || member);
+    }
+}
 
-            expect(Guild.members.fetch("Test").id).toBe("Test");
-            expect(Guild.members.fetch("Test").user.id).toBe("Test");
-        })
+class Member {
+    /**
+     * Creates a mock member
+     * @param {Guild} guild - Guild that this member belongs to 
+     * @param {number=} id - Unique member ID
+     */
+    constructor(guild, id = Math.floor(Math.random() * 100000) + 100) {
+        this.id = id;
+        this.guild = guild;
+        this.username = id;
+        /**
+         * All of the guilds roles
+         * @namespace
+         */
+        this.roles = {
+            /**
+             * All of the Role IDs that this user is in.
+             * @type {number[]}
+             */
+            roles: [],
+            /**
+             * Add a role to a user
+             * @param {number} id - Role ID 
+             */
+            add(id) {
+                this.roles.push(id)
+            },
+            /**
+             * Remove a role from a user
+             * @param {number} id - Role ID
+             */
+            remove(id) {
+                const index = this.roles.indexOf(id.id);
+                this.roles.splice(index, 1);
+            }
+        }
 
-        it("shouldn't find an inexistent mock member", () => {
-            const Guild = new DiscordMock.Guild();
-            Guild.members.add({
-                id: "Test"
-            });
+        guild.members.add(this);
+    }
+}
 
-            expect(Guild.members.fetch("Test2").id).toBe(undefined);
-            expect(Guild.members.fetch("Test2").user).toBe(undefined);
-        })
-    })
+class Channel {
+    /**
+     * Creates a mock channel
+     * @param {number=} id - Unique channel ID
+     * @param {boolean=} isNSFW - Marks this channel as NSFW
+     */
+    constructor(id = Math.floor(Math.random() * 10000), isNSFW = false) {
+        this.id = id;
+        this.nsfwStatus = isNSFW;
+    }
 
-    describe("Member tests", () => {
-        it("should create a member with a random ID", () => {
-            const Guild = new DiscordMock.Guild();
-            const Member = new DiscordMock.Member(Guild);
+    /**
+     * Returns whether or not this channel is NSFW
+     * @return {boolean}
+     */
+    get nsfw() {
+        return this.nsfwStatus;
+    }
+}
 
-            expect(Member.id).not.toBe(undefined);
-        })
-
-        it("should create a member with a set ID", () => {
-            const Guild = new DiscordMock.Guild();
-            const Member = new DiscordMock.Member(Guild, "My Test ID");
-
-            expect(Member.id).toBe("My Test ID");
-        })
-
-
-        it("should add a role to a mock member", () => {
-            const Guild = new DiscordMock.Guild();
-            const Member = new DiscordMock.Member(Guild);
-
-            Member.roles.add("Test");
-
-            expect(Member.roles.roles).toHaveLength(1);
-            expect(Member.roles.roles[0]).toBe("Test")
-        })
-
-        it("should remove a role from a mock member", () => {
-            const Guild = new DiscordMock.Guild();
-            const Member = new DiscordMock.Member(Guild);
-
-            Member.roles.add("Test");
-            Member.roles.remove("Test");
-
-            expect(Member.roles.roles).toHaveLength(0);
-        })
-
-        it("shouldnt fail to remove an invalid role", () => {
-            const Guild = new DiscordMock.Guild();
-            const Member = new DiscordMock.Member(Guild);
-
-            Member.roles.remove("Test");
-
-            expect(Member.roles.roles).toHaveLength(0);
-        })
-    })
-
-    describe("Channel tests", () => {
-        it("should create a channel with a random ID", () => {
-            const Channel = new DiscordMock.Channel();
-
-            expect(Channel.id).not.toBe(undefined)
-        })
-
-        it("should create a channel with a set ID", () => {
-            const Channel = new DiscordMock.Channel("Test");
-
-            expect(Channel.id).toBe("Test")
-        })
-
-        it("should create a channel that is marked as NSFW", () => {
-            const Channel = new DiscordMock.Channel("Test", true);
-
-            expect(Channel.id).toBe("Test")
-            expect(Channel.nsfw).toBe(true)
-        })
-    })
-
-    describe("Message tests", () => {
-        it("Should create a message with fake data", () => {
-            const Message = new DiscordMock.Message("Test author", "Test message", [], "Test channel", "Test guild");
-
-            expect(Message.content).toBe("Test message");
-            expect(Message.attachments.size).toBe(0);
-            expect(Message.author).toBe("Test author");
-            expect(Message.guild).toBe("Test guild");
-            expect(Message.channel).toBe("Test channel");
-        })
-
-        it("Should create a message with fake data and attachments", () => {
-            const Message = new DiscordMock.Message("Test author", "Test message", [{image: true}], "Test channel", "Test guild");
-
-            expect(Message.attachments.size).toBe(1);
-            expect(Message.attachments.attachments[0].image).toBe(true);
-        })
-
-        it("should be able to reply to a message", () => {
-            const Message = new DiscordMock.Message({id: 1234}, "Test message", [{image: true}], "Test channel", "Test guild");
-
-            Message.reply("Hello!");
-
-            expect(Message.replyStatus).toBe("<@1234>, Hello!")
-        })
-    })
-})
+module.exports.Message = Message;
+module.exports.Guild = Guild;
+module.exports.Member = Member;
+module.exports.Channel = Channel;

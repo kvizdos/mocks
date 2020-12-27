@@ -104,4 +104,42 @@ describe("Mock Mongo Unit Tests", () => {
 
         done();
     })
+
+    it("should delete an item from the database", async (done) => {
+        const db = new Database();
+
+        await db.collection("test").insert({name: "blah"});
+
+        await db.collection("test").remove({name: "blah"})
+
+        db.collection("test").find({name: "blah"}).toArray((err, data) => {
+            expect(data).toHaveLength(0);
+        });
+        
+        done();
+
+    })
+
+    it("should delete multiple matching items from the database", async (done) => {
+        const db = new Database();
+
+        await db.collection("test").insert({name: "blah", id: "1"});
+        await db.collection("test").insert({name: "blah", id: "2"});
+        await db.collection("test").insert({name: "aaah", id: "3"});
+        await db.collection("test").insert({name: "blah", id: "4"});
+
+        await db.collection("test").remove({name: "blah"})
+
+        db.collection("test").find({name: "blah"}).toArray((err, data) => {
+            expect(data).toHaveLength(0);
+        });
+
+        db.collection("test").find({name: "aaah"}).toArray((err, data) => {
+            expect(data).toHaveLength(1);
+            expect(data[0].id).toBe("3");
+        });
+
+        done();
+
+    })
 })

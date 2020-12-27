@@ -139,6 +139,28 @@ class Database {
         })
     }
 
+    /**
+     * Removes item(s) from database
+     * @param {Object} query
+     */
+    async remove(query) {
+        return new Promise((resolve, reject) => {
+            if(JSON.stringify(query) != "{}") {
+                this.data = this.data.filter(obj => {
+                    let ret = true;
+                    for(let key in query) {
+                        if(obj[key] == query[key]) {
+                            ret = false;
+                            break;
+                        }
+                    }
+                    return ret;
+                })
+            }
+            resolve(this);
+        })
+    }
+
 }
 
 module.exports = Database;

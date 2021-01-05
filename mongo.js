@@ -35,7 +35,18 @@ class Database {
             this.returnData = JSON.parse(JSON.stringify(this.data.filter(obj => {
                 let ret = true;
                 for(let key in query) {
-                    if(obj[key] != query[key]) {
+                    if(query[key]['$in'] != undefined && typeof obj[key] == 'object') {
+                        ret = false;
+                        for(let i = 0; i < obj[key].length; i++) {
+                            const listItem = obj[key][i]
+
+                            if(query[key]["$in"].includes(listItem)) {
+                                ret = true;
+                                break;
+                            }
+                        }
+                        break;   
+                    } else if(obj[key] != query[key]) {
                         ret = false;
                         break;
                     }

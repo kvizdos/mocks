@@ -9,6 +9,19 @@ describe("Mock Mongo Unit Tests", () => {
         });
     })
 
+    it("should find all values where $in matches", async (done) => {
+        const db = new Database();
+
+        await db.collection("test").insert({authorizedUsers: ["kenton", "josh", "mark"]});
+        await db.collection("test").insert({authorizedUsers: ["james", "kenton"]});
+        await db.collection("test").insert({authorizedUsers: ["james"]});
+
+        db.collection("test").find({authorizedUsers: {$in: ["kenton"]}}).toArray((err, data) => {
+            expect(data).toHaveLength(2);
+            done();
+        });
+    })
+    
     it("should insert an item with a random ID", async (done) => {
         let db = new Database();
 
